@@ -13,7 +13,7 @@ const (
 )
 
 type RedisStorage struct {
-	pool *redis.Pool
+	Pool *redis.Pool
 	conn string
 	db   int
 	auth string
@@ -23,7 +23,7 @@ func NewAuthRedisStorage(conn string, db int, auth string) (storage *RedisStorag
 	storage = newRedisStorage(conn, db)
 	storage.auth = auth
 	storage.init()
-	c := storage.pool.Get()
+	c := storage.Pool.Get()
 	defer c.Close()
 	err = c.Err()
 	return
@@ -32,7 +32,7 @@ func NewAuthRedisStorage(conn string, db int, auth string) (storage *RedisStorag
 func NewRedisStorage(conn string, db int) (storage *RedisStorage, err error) {
 	storage = newRedisStorage(conn, db)
 	storage.init()
-	c := storage.pool.Get()
+	c := storage.Pool.Get()
 	defer c.Close()
 	err = c.Err()
 	return
@@ -65,8 +65,8 @@ func (p *RedisStorage) init() {
 		}
 		return
 	}
-	// initialize a new pool
-	p.pool = &redis.Pool{
+	// initialize a new Pool
+	p.Pool = &redis.Pool{
 		MaxIdle:     MAX_IDLE,
 		IdleTimeout: IDLE_TIMEOUT * time.Second,
 		Dial:        dialFunc,
@@ -75,7 +75,7 @@ func (p *RedisStorage) init() {
 
 // actually do the redis cmds
 func (p *RedisStorage) do(cmd string, args ...interface{}) (interface{}, error) {
-	c := p.pool.Get()
+	c := p.Pool.Get()
 	defer c.Close()
 	return c.Do(cmd, args...)
 }
